@@ -1,5 +1,6 @@
 package pl.klejczyk.tpm.workorder.application;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.klejczyk.tpm.workorder.domain.Actor;
@@ -7,6 +8,9 @@ import pl.klejczyk.tpm.workorder.domain.WorkOrder;
 import pl.klejczyk.tpm.workorder.domain.exceptions.WorkOrderNotFound;
 import pl.klejczyk.tpm.workorder.domain.WorkOrderReason;
 import pl.klejczyk.tpm.workorder.domain.WorkOrderRepository;
+import pl.klejczyk.tpm.workorder.infrastructure.messaging.DomainEventOccurred;
+import pl.klejczyk.tpm.workorder.infrastructure.messaging.WorkOrderResolved;
+import pl.klejczyk.tpm.workorder.infrastructure.messaging.WorkOrderStarted;
 
 import java.time.Clock;
 import java.util.UUID;
@@ -16,10 +20,12 @@ public class WorkOrderService {
 
     private final WorkOrderRepository repository;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
 
-    public WorkOrderService(WorkOrderRepository repository, Clock clock) {
+    public WorkOrderService(WorkOrderRepository repository, Clock clock, ApplicationEventPublisher events) {
         this.repository = repository;
         this.clock = clock;
+        this.events = events;
     }
 
     @Transactional
@@ -40,7 +46,15 @@ public class WorkOrderService {
     public WorkOrder start(String id, Actor actor) {
         WorkOrder workOrder = load(id);
         workOrder.start(actor, clock.instant());
-        return repository.save(workOrder);
+        WorkOrder saved = repository.save(workOrder);
+
+        events.publishEvent(new DomainEventOccurred(
+                "workorder.started",
+                "WorkOrderStarted",
+                new WorkOrderStarted(saved.id(), saved.machineId(), saved.startedAt()),
+                null));
+
+        return saved;
     }
 
     @Transactional
@@ -61,7 +75,17 @@ public class WorkOrderService {
     public WorkOrder resolve(String id, Actor actor, String resolution) {
         WorkOrder workOrder = load(id);
         workOrder.resolve(actor, resolution, clock.instant());
-        return repository.save(workOrder);
+        WorkOrder saved = repository.save(workOrder);
+
+        events.publishEvent(new DomainEventOccurred(
+                "workorder.resolved",
+                "WorkOrderResolved",
+                new WorkOrderResolved(saved.id(), saved.machineId(),
+                        saved.startedAt(), saved.resolvedAt()),
+                null));
+
+        return saved;
+
     }
 
     @Transactional

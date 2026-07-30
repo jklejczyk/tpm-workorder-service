@@ -27,7 +27,7 @@ class MachineEventListenerIT {
                 "evt-1",
                 "corr-1",
                 "MachineRegistered",
-                1, 
+                1,
                 Instant.now(),
                 new MachineRegisteredEvent("m-1", "Hydraulic press"));
 

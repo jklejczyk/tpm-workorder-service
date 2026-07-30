@@ -1,3 +1,19 @@
 spring:
   application:
     name: tpm-workorder-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/workorder_db}
+    username: ${SPRING_DATASOURCE_USERNAME:workorder_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:workorder}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

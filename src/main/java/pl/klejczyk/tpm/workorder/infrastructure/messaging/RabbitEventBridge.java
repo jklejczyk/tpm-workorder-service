@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import pl.klejczyk.tpm.workorder.support.CorrelationId;
 
 import java.time.Clock;
 import java.util.UUID;
@@ -25,10 +26,15 @@ class RabbitEventBridge {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     void send(DomainEventOccurred event) {
-        EventEnvelope<Object> envelope = new EventEnvelope<>(UUID.randomUUID().toString(), event.correlationId() != null ? event.correlationId() : UUID.randomUUID().toString(), event.type(), 1, clock.instant(), event.payload());
+        String correlationId = CorrelationId.current();
 
-        rabbitTemplate.convertAndSend(RabbitConfiguration.EXCHANGE, event.routingKey(), envelope);
+        EventEnvelope<Object> envelope = new EventEnvelope<>(UUID.randomUUID().toString(), correlationId != null ? correlationId : UUID.randomUUID().toString(), event.type(), 1, clock.instant(), event.payload());
 
-        log.info("Published {} correlationId={} eventId={}", envelope.type(), envelope.correlationId(), envelope.eventId());
+        try {
+            rabbitTemplate.convertAndSend(RabbitConfiguration.EXCHANGE, event.routingKey(), envelope);
+            log.info("Published {} eventId={}", envelope.type(), envelope.eventId());
+        } catch (Exception exception) {
+            log.error("Failed to publish {} eventId={} - event lost", envelope.type(), envelope.eventId(), exception);
+        }
     }
 }

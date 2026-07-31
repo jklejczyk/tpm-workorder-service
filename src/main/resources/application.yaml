@@ -17,6 +17,10 @@ spring:
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
+logging:
+  pattern:
+    console: "%d{HH:mm:ss} %-5level [%X{correlationId}] %logger{36} - %msg%n"
+
 management:
   endpoints:
     web:

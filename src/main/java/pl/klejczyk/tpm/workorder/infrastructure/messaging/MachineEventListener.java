@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.klejczyk.tpm.workorder.domain.KnownMachine;
 import pl.klejczyk.tpm.workorder.domain.KnownMachineRepository;
+import pl.klejczyk.tpm.workorder.support.CorrelationId;
 
 import java.time.Clock;
 
@@ -28,8 +29,17 @@ class MachineEventListener {
     @RabbitListener(queues = RabbitConfiguration.MACHINE_QUEUE)
     @Transactional
     void onMachineRegistered(EventEnvelope<MachineRegisteredEvent> envelope) {
+        CorrelationId.set(envelope.correlationId());
+        try {
+            handle(envelope);
+        } finally {
+            CorrelationId.clear();
+        }
+    }
+
+    private void handle(EventEnvelope<MachineRegisteredEvent> envelope) {
         if (processedEvents.existsById(envelope.eventId())) {
-            log.info("Skipping duplicate eventId={} correlationId={}", envelope.eventId(), envelope.correlationId());
+            log.info("Skipping duplicate eventId={}", envelope.eventId());
             return;
         }
 
@@ -37,6 +47,6 @@ class MachineEventListener {
         machines.save(KnownMachine.of(payload.machineId(), payload.name()));
         processedEvents.save(new ProcessedEvent(envelope.eventId(), clock.instant()));
 
-        log.info("Stored machine {} correlationId={}", payload.machineId(), envelope.correlationId());
+        log.info("Stored machine {}", payload.machineId());
     }
 }

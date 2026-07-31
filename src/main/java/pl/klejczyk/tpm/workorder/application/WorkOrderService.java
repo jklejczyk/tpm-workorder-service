@@ -51,8 +51,7 @@ public class WorkOrderService {
         events.publishEvent(new DomainEventOccurred(
                 "workorder.started",
                 "WorkOrderStarted",
-                new WorkOrderStarted(saved.id(), saved.machineId(), saved.startedAt()),
-                null));
+                new WorkOrderStarted(saved.id(), saved.machineId(), saved.startedAt())));
 
         return saved;
     }
@@ -81,8 +80,7 @@ public class WorkOrderService {
                 "workorder.resolved",
                 "WorkOrderResolved",
                 new WorkOrderResolved(saved.id(), saved.machineId(),
-                        saved.startedAt(), saved.resolvedAt()),
-                null));
+                        saved.startedAt(), saved.resolvedAt())));
 
         return saved;
 

@@ -1,5 +1,6 @@
 package pl.klejczyk.tpm.workorder.api;
 
+import org.springframework.security.oauth2.jwt.Jwt;
 import pl.klejczyk.tpm.workorder.domain.Actor;
 import pl.klejczyk.tpm.workorder.domain.Role;
 
@@ -8,11 +9,14 @@ final class ActorFactory {
     private ActorFactory() {
     }
 
-    // TODO: implement real auth
-    static Actor from(String actorId, String actorRole) {
-        if (actorId == null || actorId.isBlank() || actorRole == null || actorRole.isBlank()) {
-            throw new IllegalArgumentException("Headers X-Actor-Id and X-Actor-Role are required.");
+
+    static Actor from(Jwt token) {
+        String id = token.getSubject();
+        String role = token.getClaimAsString("role");
+
+        if (id == null || id.isBlank() || role == null || role.isBlank()) {
+            throw new IllegalArgumentException("Token must carry a subject and a role claim.");
         }
-        return new Actor(actorId, Role.valueOf(actorRole));
+        return new Actor(id, Role.valueOf(role));
     }
 }

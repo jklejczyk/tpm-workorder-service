@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.klejczyk.tpm.workorder.domain.Actor;
 import pl.klejczyk.tpm.workorder.domain.WorkOrder;
-import pl.klejczyk.tpm.workorder.domain.exceptions.WorkOrderNotFound;
+import pl.klejczyk.tpm.workorder.domain.exception.WorkOrderNotFound;
 import pl.klejczyk.tpm.workorder.domain.WorkOrderReason;
 import pl.klejczyk.tpm.workorder.domain.WorkOrderRepository;
 import pl.klejczyk.tpm.workorder.infrastructure.messaging.DomainEventOccurred;

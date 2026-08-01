@@ -1,4 +1,4 @@
-package pl.klejczyk.tpm.workorder.domain.exceptions;
+package pl.klejczyk.tpm.workorder.domain.exception;
 
 public class WorkOrderNotFound extends RuntimeException {
 

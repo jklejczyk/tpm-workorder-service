@@ -88,7 +88,7 @@ docker compose -f ../tpm-platform/docker-compose.yml exec -T db \
 # Report a breakdown -> 201
 WO=$(curl -s -X POST localhost:8082/work-orders \
   -H "Authorization: Bearer $OP" -H 'Content-Type: application/json' \
-  -d "{\"machineId\":\"$MACHINE\",\"reason\":\"BREAKDOWN\",\"reportedBy\":\"op-1\"}" \
+  -d "{\"machineId\":\"$MACHINE\",\"reason\":\"BREAKDOWN\"}" \
   | grep -o '"id":"[^"]*' | cut -d'"' -f4)
 echo "$WO"
 
@@ -133,7 +133,7 @@ Each returns a different code for a different reason. This is the point of the s
 ```bash
 NEW=$(curl -s -X POST localhost:8082/work-orders \
   -H "Authorization: Bearer $OP" -H 'Content-Type: application/json' \
-  -d "{\"machineId\":\"$MACHINE\",\"reason\":\"BREAKDOWN\",\"reportedBy\":\"op-1\"}" \
+  -d "{\"machineId\":\"$MACHINE\",\"reason\":\"BREAKDOWN\"}" \
   | grep -o '"id":"[^"]*' | cut -d'"' -f4)
 
 # No token -> 401, "I do not know who you are" (Spring Security)
@@ -182,7 +182,7 @@ curl -s -i -X POST localhost:8082/work-orders \
 curl -s -X POST localhost:8082/work-orders \
   -H "Authorization: Bearer $OP" -H 'Content-Type: application/json' \
   -H 'X-Correlation-Id: my-trace-1' \
-  -d "{\"machineId\":\"$MACHINE\",\"reason\":\"BREAKDOWN\",\"reportedBy\":\"op-1\"}" > /dev/null
+  -d "{\"machineId\":\"$MACHINE\",\"reason\":\"BREAKDOWN\"}" > /dev/null
 
 docker compose -f ../tpm-platform/docker-compose.yml logs machine workorder | grep my-trace-1
 ```

@@ -34,11 +34,29 @@ class WorkOrderControllerIT {
     private String reportWorkOrder() throws Exception {
         String body = mockMvc.perform(post("/work-orders").with(actor("op-1", "OPERATOR"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"machineId\":\"m-1\",\"reason\":\"BREAKDOWN\",\"reportedBy\":\"op-1\"}"))
+                        .content("{\"machineId\":\"m-1\",\"reason\":\"BREAKDOWN\"}"))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
         return objectMapper.readTree(body).get("id").asText();
+    }
+
+    @Test
+    void takesTheReporterFromTheTokenRatherThanTheRequest() throws Exception {
+        mockMvc.perform(post("/work-orders").with(actor("op-1", "OPERATOR"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"machineId\":\"m-1\",\"reason\":\"BREAKDOWN\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.reportedBy").value("op-1"));
+    }
+
+    @Test
+    void ignoresAnAttemptToSpoofTheReporter() throws Exception {
+        mockMvc.perform(post("/work-orders").with(actor("op-1", "OPERATOR"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"machineId\":\"m-1\",\"reason\":\"BREAKDOWN\",\"reportedBy\":\"mgr-1\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.reportedBy").value("op-1"));
     }
 
     @Test

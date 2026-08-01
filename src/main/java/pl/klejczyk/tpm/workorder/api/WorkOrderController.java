@@ -24,9 +24,8 @@ class WorkOrderController {
     }
 
     @PostMapping
-    ResponseEntity<WorkOrderResponse> report(@Valid @RequestBody ReportWorkOrderRequest request) {
-        WorkOrderResponse response = WorkOrderResponse.from(
-                service.report(request.machineId(), request.reason(), request.reportedBy()));
+    ResponseEntity<WorkOrderResponse> report(@AuthenticationPrincipal Jwt token, @Valid @RequestBody ReportWorkOrderRequest request) {
+        WorkOrderResponse response = WorkOrderResponse.from(service.report(request.machineId(), request.reason(), ActorFactory.from(token).id()));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -8,6 +8,7 @@ public record WorkOrderResponse(
         String id,
         String machineId,
         String status,
+        String reportedBy,
         String assignedTo,
         Instant startedAt,
         Instant resolvedAt) {
@@ -17,6 +18,7 @@ public record WorkOrderResponse(
                 workOrder.id(),
                 workOrder.machineId(),
                 workOrder.status().name(),
+                workOrder.reportedBy(),
                 workOrder.assignedTo(),
                 workOrder.startedAt(),
                 workOrder.resolvedAt());

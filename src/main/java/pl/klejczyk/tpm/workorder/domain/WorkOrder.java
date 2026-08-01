@@ -127,6 +127,10 @@ public class WorkOrder {
         return id;
     }
 
+    public String reportedBy() {
+        return reportedBy;
+    }
+
     public String machineId() {
         return machineId;
     }

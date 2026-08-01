@@ -32,7 +32,8 @@ caller is; the domain decides *whether they may*.
 ## Endpoints
 
 All require a `Bearer` token signed by the auth service. The actor is taken from the token's
-`sub` and `role` claims.
+`sub` and `role` claims — including the reporter of a breakdown, which is deliberately not a
+field of the request. Identity never comes from data the caller supplies.
 
 | Method | Path | |
 |---|---|---|
